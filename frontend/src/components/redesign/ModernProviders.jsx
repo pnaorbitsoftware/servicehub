@@ -7,7 +7,7 @@ export default function ModernProviders({ services = [], setSelectedService }) {
         <div className="mb-12 flex items-center justify-between">
           <div>
             <span className="rounded-full bg-blue-100 px-4 py-2 text-sm font-semibold text-blue-700 dark:bg-blue-500/15 dark:text-blue-300">
-              Trusted Professionals
+              Trusted Professionalss
             </span>
 
             <h2 className="mt-5 text-4xl font-extrabold text-slate-900 dark:text-white">

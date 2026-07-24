@@ -1,5 +1,4 @@
 import { AnimatePresence, motion } from "framer-motion";
-import { io } from "socket.io-client";
 import ModernHero from "../../components/redesign/ModernHero";
 import ModernPopularServices from "../../components/redesign/ModernPopularServices";
 import NewAdminPanel from "../../components/admin/NewAdminPanel";
@@ -65,7 +64,6 @@ import {
   getActiveStepIndex,
   getLatestTrackingEvent,
   normalizeTrackingStatus,
-  socketUrlFromApi,
   trackingSteps,
 } from "../../components/tracking/trackingShared";
 import useProviderAlerts from "../../components/tracking/useProviderAlerts";
@@ -1083,25 +1081,6 @@ export default function Home() {
     user?.role,
     token,
   ]);
-
-  useEffect(() => {
-    const shouldSyncClientBookings =
-      Boolean(token) &&
-      (user?.role === "user" ||
-        (user?.role === "provider" && providerClientMode));
-    if (!shouldSyncClientBookings) return undefined;
-
-    const socket = io(socketUrlFromApi(SOCKET_API_URL), {
-      auth: { token },
-      transports: ["websocket", "polling"],
-    });
-
-    socket.on("booking:updated", refreshClientBookings);
-
-    return () => {
-      socket.disconnect();
-    };
-  }, [providerClientMode, refreshClientBookings, token, user?.role]);
 
   const marketplaceServices = useMemo(() => {
     const map = new Map();
@@ -2233,7 +2212,7 @@ export default function Home() {
           buildBreadcrumbSchema([{ name: "Home", path: "/" }]),
         ]}
       />
-      <div className="min-h-screen bg-slate-50 text-slate-950 transition-colors duration-500 dark:bg-slate-950 dark:text-white">
+      <div className="min-h-screen bg-slate-50 text-slate-950 transition-colors duration-500 dark:bg-[#081229] dark:text-white">
         {activeView === "home" && (
           <ModernNavbar
             navScrolled={navScrolled}
@@ -2344,7 +2323,7 @@ export default function Home() {
             {/*  <PopularServicesGrid openPopularService={openPopularService} /> >*/}
             <section
               id="services"
-              className="home-section border-y border-[#ded7ca] bg-[#fbfaf6] dark:border-white/10 dark:bg-gradient-to-r from-orange-500 to-rose-500 text-white shadow-lg"
+              className="home-section border-y border-[#ded7ca] bg-[#fbfaf6] dark:border-white/10 dark:bg-[#081229] text-white shadow-lg dark:bg-none dark:text-white"
             >
               <ModernPopularServices openPopularService={openPopularService} />
               <div className="mx-auto grid max-w-[1500px] lg:grid-cols-[350px_1fr]">
@@ -2581,8 +2560,8 @@ export default function Home() {
 
 function WorkspaceRecovery({ message, onRecover }) {
   return (
-    <main className="grid min-h-screen place-items-center bg-slate-50 px-4 dark:bg-slate-950">
-      <section className="w-full max-w-lg rounded-[2rem] border border-slate-200 bg-white p-8 text-center shadow-xl dark:border-white/10 dark:bg-slate-900">
+    <main className="grid min-h-screen place-items-center bg-slate-50 px-4 dark:bg-[#081229]">
+      <section className="w-full max-w-lg rounded-[2rem] border border-slate-200 bg-white p-8 text-center shadow-xl dark:border-white/10 dark:bg-slate-900 dark:bg-none dark:bg-[#081229] dark:text-white">
         <ShieldCheck className="mx-auto h-12 w-12 text-teal-600" />
         <h1 className="mt-5 text-2xl font-black text-slate-950 dark:text-white">
           Workspace needs a fresh login
@@ -2795,7 +2774,7 @@ function ProfileImageModal({
               </div>
 
               <label className="group flex cursor-pointer items-center gap-3 rounded-2xl border border-dashed border-teal-300 bg-teal-50/70 p-4 text-left transition hover:-translate-y-0.5 hover:border-teal-500 hover:bg-teal-50 dark:border-teal-300/30 dark:bg-teal-300/10 dark:hover:bg-teal-300/15">
-                <span className="grid h-11 w-11 flex-none place-items-center rounded-2xl bg-white text-teal-700 shadow-sm dark:bg-slate-950 dark:text-teal-300">
+                <span className="grid h-11 w-11 flex-none place-items-center rounded-2xl bg-white text-teal-700 shadow-sm dark:bg-[#081229] dark:text-teal-300">
                   <UploadCloud size={20} />
                 </span>
                 <span className="min-w-0">
@@ -2863,7 +2842,7 @@ function ProfileImageModal({
                       onChange={updateProfileField("address")}
                       placeholder="Your registered service address"
                       rows="3"
-                      className="min-h-28 rounded-2xl border border-slate-200 bg-white px-4 py-3 outline-none transition focus:border-teal-400 dark:border-white/10 dark:bg-slate-950"
+                      className="min-h-28 rounded-2xl border border-slate-200 bg-white px-4 py-3 outline-none transition focus:border-teal-400 dark:border-white/10 dark:bg-[#081229]"
                     />
                   </label>
                   <button
@@ -3047,7 +3026,7 @@ function Providers({
   return (
     <div
       id="providers"
-      className="home-section bg-white px-4 pb-16 pt-7 dark:bg-slate-950 sm:px-6 lg:px-8 lg:pb-20 lg:pt-7"
+      className="home-section bg-white px-4 pb-16 pt-7 dark:bg-[#081229] sm:px-6 lg:px-8 lg:pb-20 lg:pt-7"
     >
       <div className="mx-auto max-w-[1500px]">
         {/* Header */}
@@ -3235,7 +3214,7 @@ function FAQ() {
   return (
     <section
       id="faq"
-      className="relative overflow-hidden bg-gradient-to-br from-white via-slate-50 to-blue-50 px-4 py-24 sm:px-6 lg:px-8 lg:py-32"
+      className="relative overflow-hidden bg-gradient-to-br from-white via-slate-50 to-blue-50 px-4 py-24 transition-colors dark:from-[#081229] dark:via-[#0B1F3A] dark:to-[#102747] sm:px-6 lg:px-8 lg:py-32 dark:bg-none dark:bg-[#081229] dark:text-white"
     >
       {/* Background Glow */}
       <div className="absolute -top-40 -left-40 h-[450px] w-[450px] rounded-full bg-cyan-400/15 blur-[170px] animate-pulse"></div>
@@ -3251,14 +3230,14 @@ function FAQ() {
         </span>
 
         {/* Heading */}
-        <h2 className="mt-8 text-5xl font-black leading-tight text-slate-900 md:text-6xl">
+        <h2 className="mt-8 text-5xl font-black leading-tight text-slate-900 dark:text-white md:text-6xl">
           Answers before customers
           <span className="block bg-gradient-to-r from-cyan-600 via-blue-600 to-violet-600 bg-clip-text text-transparent">
             book home services.
           </span>
         </h2>
 
-        <p className="mt-6 max-w-3xl text-xl leading-9 text-slate-600">
+        <p className="mt-6 max-w-3xl text-xl leading-9 text-slate-600 dark:text-slate-300">
           Find answers to the most common questions about booking services,
           payments, providers and support.
         </p>
@@ -3268,9 +3247,9 @@ function FAQ() {
           {faqItems.map((item, index) => (
             <details
               key={item.question}
-              className="group overflow-hidden rounded-[30px] border border-slate-200 bg-white/90 backdrop-blur-xl shadow-lg transition-all duration-500 hover:-translate-y-2 hover:scale-[1.01] hover:border-cyan-400 hover:shadow-[0_25px_70px_rgba(59,130,246,0.18)]"
+              className="group overflow-hidden rounded-[30px] border border-slate-200 bg-white/90 backdrop-blur-xl shadow-lg transition-all duration-500 hover:-translate-y-2 hover:scale-[1.01] hover:border-cyan-400 hover:shadow-[0_25px_70px_rgba(59,130,246,0.18)] dark:border-white/10 dark:bg-[#0B1F3A]/90"
             >
-              <summary className="flex cursor-pointer list-none items-center justify-between gap-5 px-6 py-6 text-lg font-bold text-slate-900">
+              <summary className="flex cursor-pointer list-none items-center justify-between gap-5 px-6 py-6 text-lg font-bold text-slate-900 dark:text-white">
                 <div className="flex items-center gap-5">
                   <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-r from-cyan-500 via-blue-500 to-violet-600 font-bold text-white shadow-lg transition duration-500 group-hover:rotate-6">
                     {String(index + 1).padStart(2, "0")}
@@ -3287,7 +3266,7 @@ function FAQ() {
               <div className="px-6 pb-6">
                 <div className="mt-2 h-px w-full bg-gradient-to-r from-cyan-500 via-blue-500 to-violet-500"></div>
 
-                <p className="mt-6 text-[17px] leading-8 text-slate-600">
+                <p className="mt-6 text-[17px] leading-8 text-slate-600 dark:text-slate-300">
                   {item.answer}
                 </p>
               </div>
@@ -3296,12 +3275,12 @@ function FAQ() {
         </div>
 
         {/* Bottom CTA */}
-        <div className="mt-20 rounded-[32px] border border-slate-200 bg-white/90 p-10 text-center shadow-2xl backdrop-blur-xl">
-          <h3 className="text-3xl font-black text-slate-900">
+        <div className="mt-20 rounded-[32px] border border-slate-200 bg-white/90 p-10 text-center shadow-2xl backdrop-blur-xl dark:border-white/10 dark:bg-[#0B1F3A]/90">
+          <h3 className="text-3xl font-black text-slate-900 dark:text-white">
             Still Have Questions?
           </h3>
 
-          <p className="mt-4 text-lg text-slate-600">
+          <p className="mt-4 text-lg text-slate-600 dark:text-slate-300">
             Our support team is always available to help you with bookings,
             payments and service-related queries.
           </p>
@@ -3434,24 +3413,28 @@ function ClientDashboard({
   const statusBlocks = [
     {
       title: "Pending",
+      icon: Clock,
       value: bookingSections[0].bookings.length,
       copy: "Waiting for provider response.",
       tone: "from-amber-50 to-white text-amber-700",
     },
     {
       title: "Active",
+      icon: RefreshCw,
       value: bookingSections[1].bookings.length,
       copy: "Provider accepted and live work.",
       tone: "from-blue-50 to-white text-blue-700",
     },
     {
       title: "Completed",
+      icon: CheckCircle,
       value: bookingSections[2].bookings.length,
       copy: "Finished service records.",
       tone: "from-emerald-50 to-white text-emerald-700",
     },
     {
       title: "Cancelled",
+      icon: XCircle,
       value: bookingSections[3].bookings.length,
       copy: "Cancelled request records.",
       tone: "from-rose-50 to-white text-rose-700",
@@ -3654,7 +3637,7 @@ function ClientDashboard({
                 </button>
               </header>
               <div className="client-booking-drawer-body">
-                <section className="client-booking-provider">
+                <section className="client-booking-provider dark:bg-none dark:bg-[#081229] dark:text-white">
                   <div
                     className="client-booking-provider-avatar"
                     aria-hidden="true"
@@ -3697,12 +3680,12 @@ function ClientDashboard({
                   </div>
                 </div>
                 {booking.status !== "cancelled" && (
-                  <section className="client-booking-section">
+                  <section className="client-booking-section dark:bg-none dark:bg-[#081229] dark:text-white">
                     <h3>Service progress</h3>
                     <ClientJobProgress booking={booking} />
                   </section>
                 )}
-                <section className="client-booking-section client-booking-address">
+                <section className="client-booking-section client-booking-address dark:bg-none dark:bg-[#081229] dark:text-white">
                   <h3>Service information</h3>
                   <p>
                     <MapPin size={16} /> {booking.address}
@@ -3721,7 +3704,7 @@ function ClientDashboard({
                   isPaying={payingBookingId === booking._id}
                 />
                 {booking.status === "cancelled" && (
-                  <section className="client-booking-section client-booking-cancelled">
+                  <section className="client-booking-section client-booking-cancelled dark:bg-none dark:bg-[#081229] dark:text-white">
                     <h3>Cancellation details</h3>
                     <p>
                       Cancelled by:{" "}
@@ -4469,7 +4452,7 @@ function ClientReviewPanel({ booking, form, submitting, onChange, onSubmit }) {
         rows="3"
         maxLength="600"
         placeholder="Write a short review for this provider..."
-        className="mt-3 w-full resize-none rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm font-semibold text-slate-900 outline-none transition focus:border-amber-300 focus:ring-4 focus:ring-amber-300/20 dark:border-white/10 dark:bg-slate-950 dark:text-white"
+        className="mt-3 w-full resize-none rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm font-semibold text-slate-900 outline-none transition focus:border-amber-300 focus:ring-4 focus:ring-amber-300/20 dark:border-white/10 dark:bg-[#081229] dark:text-white"
       />
       <div className="mt-3 flex flex-wrap items-center justify-between gap-2">
         <p className="text-xs font-semibold text-slate-500 dark:text-slate-300">
@@ -4630,16 +4613,12 @@ function ProviderDashboard({
     },
     [refreshDashboard, setStatusMessage],
   );
-  const handleProviderDashboardUpdate = useCallback(() => {
-    refreshDashboard?.();
-  }, [refreshDashboard]);
 
   useProviderAlerts({
     apiUrl: SOCKET_API_URL,
     token,
     enabled: Boolean(providerProfile) && !isDashboardLocked,
     onBookingAlert: handleBookingAlert,
-    onDashboardUpdate: handleProviderDashboardUpdate,
   });
 
   if (isDashboardLocked) {
@@ -5086,7 +5065,7 @@ function ProviderApprovalWaitCard({
   const isRejected = approvalStatus === "rejected";
 
   return (
-    <section className="mx-auto mt-8 grid min-h-[52vh] max-w-3xl place-items-center rounded-[2rem] border border-amber-200 bg-white p-6 text-center text-slate-950 shadow-xl shadow-slate-950/10 dark:border-amber-300/30 dark:bg-white/5 dark:text-white sm:p-10">
+    <section className="mx-auto mt-8 grid min-h-[52vh] max-w-3xl place-items-center rounded-[2rem] border border-amber-200 bg-white p-6 text-center text-slate-950 shadow-xl shadow-slate-950/10 dark:border-amber-300/30 dark:bg-white/5 dark:text-white sm:p-10 dark:bg-none dark:bg-[#081229]">
       <div className="w-full">
         <div className="mx-auto grid h-16 w-16 place-items-center rounded-2xl bg-amber-100 text-amber-700 dark:bg-amber-300/15 dark:text-amber-200">
           <Clock size={30} />
@@ -5763,7 +5742,7 @@ function BookingModal({
       <motion.form
         onSubmit={submitBooking}
         onClick={(event) => event.stopPropagation()}
-        className="scrollbar-hidden relative max-h-[92vh] w-full max-w-3xl overflow-y-auto rounded-[2rem] border border-slate-200 bg-white p-6 text-slate-950 shadow-2xl dark:border-white/10 dark:bg-slate-950 dark:text-white"
+        className="scrollbar-hidden relative max-h-[92vh] w-full max-w-3xl overflow-y-auto rounded-[2rem] border border-slate-200 bg-white p-6 text-slate-950 shadow-2xl dark:border-white/10 dark:bg-[#081229] dark:text-white"
         initial={{ opacity: 0, y: 28, scale: 0.96 }}
         animate={{ opacity: 1, y: 0, scale: 1 }}
         exit={{ opacity: 0, y: 18, scale: 0.97 }}
@@ -6115,7 +6094,7 @@ function ProviderAccountEditModal({
         </div>
 
         <div className="grid gap-5 p-5 sm:p-6">
-          <section className="rounded-[1.5rem] border border-slate-200 bg-white p-5 shadow-sm dark:border-white/10 dark:bg-white/5">
+          <section className="rounded-[1.5rem] border border-slate-200 bg-white p-5 shadow-sm dark:border-white/10 dark:bg-white/5 dark:bg-none dark:bg-[#081229] dark:text-white">
             <h3 className="text-lg font-black text-slate-950 dark:text-white">
               Business details
             </h3>
@@ -6132,7 +6111,7 @@ function ProviderAccountEditModal({
                   value={form.category}
                   onChange={update("category")}
                   required
-                  className="rounded-2xl border border-slate-200 bg-white px-4 py-3 dark:border-white/10 dark:bg-slate-950"
+                  className="rounded-2xl border border-slate-200 bg-white px-4 py-3 dark:border-white/10 dark:bg-[#081229]"
                 >
                   <option value="">Choose service category</option>
                   {serviceCategories.map((category) => (
@@ -6162,7 +6141,7 @@ function ProviderAccountEditModal({
             </div>
           </section>
 
-          <section className="rounded-[1.5rem] border border-slate-200 bg-white p-5 shadow-sm dark:border-white/10 dark:bg-white/5">
+          <section className="rounded-[1.5rem] border border-slate-200 bg-white p-5 shadow-sm dark:border-white/10 dark:bg-white/5 dark:bg-none dark:bg-[#081229] dark:text-white">
             <h3 className="text-lg font-black text-slate-950 dark:text-white">
               Service details
             </h3>
@@ -6193,7 +6172,7 @@ function ProviderAccountEditModal({
                   placeholder="Describe your service for clients"
                   rows="3"
                   required
-                  className="rounded-2xl border border-slate-200 bg-white px-4 py-3 outline-none transition focus:border-amber-300 dark:border-white/10 dark:bg-slate-950"
+                  className="rounded-2xl border border-slate-200 bg-white px-4 py-3 outline-none transition focus:border-amber-300 dark:border-white/10 dark:bg-[#081229]"
                 />
               </label>
               <label className="grid gap-2 font-bold md:col-span-2">
@@ -6203,13 +6182,13 @@ function ProviderAccountEditModal({
                   onChange={update("about")}
                   placeholder="Tell clients about your experience and work style"
                   rows="4"
-                  className="rounded-2xl border border-slate-200 bg-white px-4 py-3 outline-none transition focus:border-amber-300 dark:border-white/10 dark:bg-slate-950"
+                  className="rounded-2xl border border-slate-200 bg-white px-4 py-3 outline-none transition focus:border-amber-300 dark:border-white/10 dark:bg-[#081229]"
                 />
               </label>
             </div>
           </section>
 
-          <section className="rounded-[1.5rem] border border-slate-200 bg-white p-5 shadow-sm dark:border-white/10 dark:bg-white/5">
+          <section className="rounded-[1.5rem] border border-slate-200 bg-white p-5 shadow-sm dark:border-white/10 dark:bg-white/5 dark:bg-none dark:bg-[#081229] dark:text-white">
             <h3 className="text-lg font-black text-slate-950 dark:text-white">
               Bank details for payouts
             </h3>
@@ -6366,7 +6345,7 @@ function DashboardShell({
         </div>
       </aside>
 
-      <section className="dashboard-main-column">
+      <section className="dashboard-main-column dark:bg-none dark:bg-[#081229] dark:text-white">
         <header className="dashboard-topbar">
           <button
             type="button"
@@ -6699,7 +6678,7 @@ function ProviderCancelModal({ booking, onClose, onSubmit }) {
             rows="5"
             required
             placeholder="Explain why you cannot complete this service so admin can assign another provider."
-            className="rounded-2xl border border-slate-200 bg-white px-4 py-3 outline-none transition focus:border-rose-400 dark:border-white/10 dark:bg-slate-950"
+            className="rounded-2xl border border-slate-200 bg-white px-4 py-3 outline-none transition focus:border-rose-400 dark:border-white/10 dark:bg-[#081229]"
           />
         </label>
         <div className="mt-5 flex flex-wrap justify-end gap-3">
@@ -6784,7 +6763,7 @@ function ProviderRejectModal({ booking, onClose, onSubmit }) {
             onChange={(event) => setReason(event.target.value)}
             rows="4"
             placeholder="Let the client know why you cannot take this request."
-            className="rounded-2xl border border-slate-200 bg-white px-4 py-3 outline-none transition focus:border-rose-400 dark:border-white/10 dark:bg-slate-950"
+            className="rounded-2xl border border-slate-200 bg-white px-4 py-3 outline-none transition focus:border-rose-400 dark:border-white/10 dark:bg-[#081229]"
           />
         </label>
         <div className="mt-5 flex flex-wrap justify-end gap-3">
@@ -6849,7 +6828,7 @@ function ActionToast({ message, onClose }) {
       role="status"
       aria-live="polite"
     >
-      <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-[0_22px_70px_rgba(15,23,42,0.22)] dark:border-white/10 dark:bg-slate-950">
+      <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-[0_22px_70px_rgba(15,23,42,0.22)] dark:border-white/10 dark:bg-[#081229]">
         <div
           className={`h-1.5 ${isError ? "bg-rose-500" : "bg-gradient-to-r from-teal-500 via-blue-500 to-amber-300"}`}
         />
@@ -6925,7 +6904,7 @@ function ClientSupportSection({ user, setStatusMessage }) {
   return (
     <section
       id="contact"
-      className="relative overflow-hidden bg-gradient-to-br from-slate-50 via-teal-50 to-cyan-100 px-4 py-20 dark:from-slate-950 dark:via-slate-900 dark:to-slate-950 sm:px-6 lg:px-8 lg:py-28"
+      className="relative overflow-hidden bg-gradient-to-br from-slate-50 via-teal-50 to-cyan-100 px-4 py-20 dark:from-slate-950 dark:via-slate-900 dark:to-slate-950 sm:px-6 lg:px-8 lg:py-28 dark:bg-none dark:bg-[#081229] dark:text-white"
     >
       {/* Background Blur Effects */}
       <div className="absolute -top-40 -left-32 h-96 w-96 rounded-full bg-teal-400/20 blur-[120px] animate-pulse"></div>

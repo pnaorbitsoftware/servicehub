@@ -71,7 +71,7 @@ export default function ModernPopularServices({ openPopularService }) {
   };
 
   return (
-    <section className="overflow-hidden bg-white py-12 transition-colors dark:bg-slate-950">
+    <section className="overflow-hidden bg-white py-12 transition-colors dark:bg-[#081229]">
       <div className="mx-auto max-w-[1400px] px-6">
         {/* Header */}
         <div className="flex items-center justify-between mb-10">
@@ -119,7 +119,7 @@ export default function ModernPopularServices({ openPopularService }) {
                 variants={cardHoverVariants}
                 whileHover="hover"
                 whileTap="tap"
-                className="group relative w-[240px] flex-shrink-0 overflow-hidden rounded-[28px] border border-slate-200 bg-white text-left shadow-sm dark:border-white/10 dark:bg-slate-900"
+                className="group relative w-[240px] flex-shrink-0 overflow-hidden rounded-[28px] border border-slate-200 bg-white text-left shadow-sm dark:border-white/10 dark:bg-[#0B1F3A]"
               >
                 <div className="relative overflow-hidden">
                   <img
@@ -154,7 +154,7 @@ export default function ModernPopularServices({ openPopularService }) {
         </div>
 
         {/* Stats */}
-        <div className="mt-12 grid grid-cols-2 gap-6 rounded-[32px] border border-slate-200 bg-slate-50 p-10 dark:border-white/10 dark:bg-white/5 md:grid-cols-4">
+        <div className="mt-12 grid grid-cols-2 gap-6 rounded-[32px] border border-slate-200 bg-slate-50 p-10 dark:border-white/10 dark:bg-[#0B1F3A] md:grid-cols-4">
           <div className="text-center">
             <h3 className="text-3xl font-extrabold text-blue-600">10k+</h3>
             <p className="mt-2 text-slate-600 dark:text-slate-300">Happy Customers</p>
