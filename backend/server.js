@@ -165,6 +165,12 @@ const passwordRecoveryLimiter = rateLimit({
 //
 // Health check
 //
+app.get("/", (req, res) => {
+  res.json({
+    success: true,
+    message: "ServiceHub API is running"
+  });
+});
 app.get("/api/health", (_req, res) => {
   const dbStatus = getDatabaseStatus();
   res.status(dbStatus.connected ? 200 : 503).json({
