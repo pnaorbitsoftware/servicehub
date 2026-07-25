@@ -306,7 +306,8 @@ router.get("/my", requireAuth, async (req, res) => {
       .select("-workImage")
       .populate("assignedProvider", "name category location phone price responseTime rating reviews")
       .populate("requestedProvider", "name category location phone price responseTime rating reviews")
-      .sort({ createdAt: -1 });
+      .sort({ createdAt: -1 })
+      .lean();
     res.json({ bookings });
   } catch (error) {
     res.status(500).json({ message: "Could not load bookings." });
@@ -572,6 +573,7 @@ router.patch("/:bookingId/cancel", requireAuth, async (req, res) => {
     if (activeProvider && activeProvider.owner) {
       User.findById(activeProvider.owner)
         .select("expoPushTokens")
+        .lean()
         .then((providerUser) => {
           if (providerUser && providerUser.expoPushTokens?.length) {
             sendPushNotification({
@@ -669,7 +671,7 @@ router.post("/:bookingId/request-location", requireAuth, async (req, res) => {
     booking.locationRequested = true;
     await booking.save();
 
-    const client = await User.findById(booking.user);
+    const client = await User.findById(booking.user).lean();
     if (client && Array.isArray(client.expoPushTokens) && client.expoPushTokens.length > 0) {
       await sendPushNotification({
         tokens: client.expoPushTokens,

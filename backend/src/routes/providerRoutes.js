@@ -707,7 +707,7 @@ router.post("/resubmit-verification", requireAuth, requireProvider, async (req, 
 
 router.patch("/bookings/:bookingId/accept", requireAuth, requireProvider, async (req, res) => {
   try {
-    const provider = await Provider.findOne({ owner: req.user._id });
+    const provider = await Provider.findOne({ owner: req.user._id }).lean();
 
     if (!provider) {
       return res.status(404).json({ message: "Provider profile not found." });
@@ -746,7 +746,7 @@ router.patch("/bookings/:bookingId/accept", requireAuth, requireProvider, async 
     }
     setImmediate(async () => {
       try {
-        const client = await User.findById(booking.user);
+        const client = await User.findById(booking.user).lean();
         sendProviderAcceptedEmail({
           to: client?.email,
           name: client?.name || booking.name,
@@ -785,7 +785,7 @@ router.patch("/bookings/:bookingId/reject", requireAuth, requireProvider, async 
   try {
     const { reason = "" } = req.body || {};
 
-    const provider = await Provider.findOne({ owner: req.user._id });
+    const provider = await Provider.findOne({ owner: req.user._id }).lean();
 
     if (!provider) {
       return res.status(404).json({ message: "Provider profile not found." });
@@ -849,7 +849,7 @@ router.patch("/bookings/:bookingId/reject", requireAuth, requireProvider, async 
     }
 
     if (isDirectRequest) {
-      const client = await User.findById(booking.user);
+      const client = await User.findById(booking.user).lean();
       sendProviderRequestRejectedEmail({
         to: client?.email,
         booking,
@@ -882,7 +882,7 @@ router.patch("/bookings/:bookingId/reject", requireAuth, requireProvider, async 
 
 router.patch("/bookings/:bookingId/location", requireAuth, requireProvider, async (req, res) => {
   try {
-    const provider = await Provider.findOne({ owner: req.user._id });
+    const provider = await Provider.findOne({ owner: req.user._id }).lean();
 
     if (!provider) {
       return res.status(404).json({ message: "Provider profile not found." });
@@ -935,7 +935,7 @@ router.patch("/bookings/:bookingId/status", requireAuth, requireProvider, async 
       return res.status(400).json({ message: "Invalid booking status." });
     }
 
-    const provider = await Provider.findOne({ owner: req.user._id });
+    const provider = await Provider.findOne({ owner: req.user._id }).lean();
 
     if (!provider) {
       return res.status(404).json({ message: "Provider profile not found." });
@@ -1004,7 +1004,7 @@ router.patch("/bookings/:bookingId/status", requireAuth, requireProvider, async 
 
     setImmediate(async () => {
       try {
-        const client = await User.findById(booking.user);
+        const client = await User.findById(booking.user).lean();
         if (status === "completed") {
           sendServiceCompletedEmail({
             to: client?.email,

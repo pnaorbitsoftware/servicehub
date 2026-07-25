@@ -16,7 +16,7 @@ export const sendStatusChangeNotification = async (booking) => {
     return { skipped: true };
   }
 
-  const client = await User.findById(booking.user).select("fcmToken");
+  const client = await User.findById(booking.user).select("fcmToken").lean();
   if (!client?.fcmToken) {
     return { skipped: true };
   }
@@ -78,7 +78,7 @@ export const sendProviderBookingNotification = async ({ provider, booking }) => 
 
   let token = provider.fcmToken || "";
   if (!token && provider.owner) {
-    const owner = await User.findById(provider.owner).select("fcmToken");
+    const owner = await User.findById(provider.owner).select("fcmToken").lean();
     token = owner?.fcmToken || "";
   }
 

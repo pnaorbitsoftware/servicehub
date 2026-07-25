@@ -14,11 +14,12 @@ function NotificationsScreen({ notifications = [], loading, error, refreshing, o
     ({ item }) => <NotificationCard notification={item} onPress={onMarkRead} />,
     [onMarkRead]
   );
+  const keyExtractor = useCallback((item) => String(item.id || item._id), []);
 
   return (
     <FlatList
       data={loading ? [] : notifications}
-      keyExtractor={(item) => String(item.id || item._id)}
+      keyExtractor={keyExtractor}
       renderItem={renderItem}
       initialNumToRender={10}
       maxToRenderPerBatch={10}

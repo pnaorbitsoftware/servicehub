@@ -200,7 +200,7 @@ router.post("/bookings/:bookingId/estimate", requireAuth, requireProvider, async
 
     // Send push notification to client
     try {
-      const client = await User.findById(booking.user);
+      const client = await User.findById(booking.user).lean();
       sendPushNotification({
         tokens: client?.expoPushTokens || [],
         title: "Estimate received",
@@ -502,6 +502,7 @@ router.post("/verify", requireAuth, requireClient, async (req, res) => {
     const updatedPayment = await payment.save();
 
     booking.paymentStatus = "paid";
+    booking.clientPaymentStatus = "paid";
     booking.razorpayPaymentId = razorpay_payment_id;
     booking.providerShare = providerShare;
     booking.platformFee = platformFee;
@@ -584,6 +585,11 @@ router.post("/verify", requireAuth, requireClient, async (req, res) => {
     } catch (pushError) {
       console.error("Failed to send push notifications:", pushError);
     }
+
+    await updatedBooking.populate([
+      { path: "assignedProvider", select: "name category location phone price responseTime rating reviews" },
+      { path: "requestedProvider", select: "name category location phone price responseTime rating reviews" },
+    ]);
 
     res.json({
       success: true,

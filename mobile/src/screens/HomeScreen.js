@@ -1,4 +1,4 @@
-﻿import { MaterialCommunityIcons } from "@expo/vector-icons";
+import { MaterialCommunityIcons } from "@expo/vector-icons";
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
   Animated,
@@ -183,6 +183,11 @@ function HomeScreen({
 
   const marketplaceServices = useMemo(() => buildMarketplace(catalogProviders), [catalogProviders]);
   const recommendedProviders = useMemo(() => marketplaceServices.filter((provider) => provider.isBookable !== false).slice(0, 8), [marketplaceServices]);
+  const keyExtractorProviderMiniCard = useCallback((item) => String(item.id), []);
+  const renderProviderMiniCard = useCallback(
+    ({ item }) => <ProviderMiniCard provider={item} onPress={onViewDetails} onBook={onBook} />,
+    [onViewDetails, onBook]
+  );
 
   const searchSuggestions = useMemo(() => {
     const requested = ["AC Repair", "Washing Machine", "Electrician", "Bathroom Cleaning", "Sofa Cleaning"];
@@ -326,8 +331,8 @@ function HomeScreen({
       <FlatList
         data={recommendedProviders}
         horizontal
-        keyExtractor={(item) => String(item.id)}
-        renderItem={({ item }) => <ProviderMiniCard provider={item} onPress={onViewDetails} onBook={onBook} />}
+        keyExtractor={keyExtractorProviderMiniCard}
+        renderItem={renderProviderMiniCard}
         showsHorizontalScrollIndicator={false}
         contentContainerStyle={styles.horizontalList}
         initialNumToRender={6}
@@ -834,7 +839,7 @@ function FooterExperienceCard({ onPress }) {
 }
 
 // ====== ProviderMiniCard – unchanged ======
-function ProviderMiniCard({ provider, onPress, onBook }) {
+const ProviderMiniCard = React.memo(function ProviderMiniCard({ provider, onPress, onBook }) {
   const theme = useThemeColors();
   const profileImage = provider.profileImage || "";
   const [imageFailed, setImageFailed] = useState(false);
@@ -854,7 +859,7 @@ function ProviderMiniCard({ provider, onPress, onBook }) {
       </Pressable>
     </Pressable>
   );
-}
+});
 
 // ====== SkeletonRow – unchanged ======
 function SkeletonRow() {

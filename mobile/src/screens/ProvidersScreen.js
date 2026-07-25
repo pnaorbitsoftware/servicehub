@@ -137,7 +137,7 @@ function ProvidersScreen({
   );
 }
 
-function ProviderCard({ provider, onPress, onBook }) {
+const ProviderCard = React.memo(function ProviderCard({ provider, onPress, onBook }) {
   const { width } = useWindowDimensions();
   const theme = useThemeColors();
   const profileImage = provider.profileImage || "";
@@ -192,9 +192,9 @@ function ProviderCard({ provider, onPress, onBook }) {
       {disabled ? <Text style={[styles.unavailable, { color: theme.rose }]}>Provider is currently unavailable.</Text> : null}
     </Pressable>
   );
-}
+});
 
-function StatusBadge({ status = "available", bookable }) {
+const StatusBadge = React.memo(function StatusBadge({ status = "available", bookable }) {
   const theme = useThemeColors();
   const bad = !bookable || ["inactive", "absent"].includes(status);
   return (
@@ -202,7 +202,7 @@ function StatusBadge({ status = "available", bookable }) {
       {status}
     </Text>
   );
-}
+});
 
 function SkeletonProviders() {
   const theme = useThemeColors();
