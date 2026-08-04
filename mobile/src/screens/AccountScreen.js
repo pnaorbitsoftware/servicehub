@@ -1,4 +1,4 @@
-﻿import { MaterialCommunityIcons } from "@expo/vector-icons";
+import { MaterialCommunityIcons } from "@expo/vector-icons";
 import React from "react";
 import { Image, Pressable, ScrollView, StyleSheet, Text, useWindowDimensions, View } from "react-native";
 
@@ -145,20 +145,34 @@ function AccountScreen({
             {t("account.welcomeCopy", "Login to book services, track bookings, and manage provider requests.")}
           </Text>
           <View style={styles.authRow}>
-            <ActionButton title={t("common.login", "Login")} icon="login" onPress={() => onOpenAuth("login", "user")} style={styles.authButton} />
+            <ActionButton
+              title={t("common.login", "Login")}
+              icon="login"
+              onPress={() => onOpenAuth("login", "user")}
+              style={[
+                styles.authButton,
+                width < 360 ? styles.authButtonFull : width < 412 ? styles.authButtonHalf : null,
+              ]}
+            />
             <ActionButton
               title={t("common.register", "Register")}
               icon="account-plus-outline"
               variant="secondary"
               onPress={() => onOpenAuth("register", "user")}
-              style={styles.authButton}
+              style={[
+                styles.authButton,
+                width < 360 ? styles.authButtonFull : width < 412 ? styles.authButtonHalf : null,
+              ]}
             />
             <ActionButton
               title={t("common.provider", "Provider")}
               icon="account-hard-hat-outline"
               variant="secondary"
               onPress={() => onOpenAuth("register", "provider")}
-              style={styles.authButton}
+              style={[
+                styles.authButton,
+                width < 360 ? styles.authButtonFull : width < 412 ? styles.authButtonFull : null,
+              ]}
             />
           </View>
         </View>
@@ -237,6 +251,16 @@ const styles = StyleSheet.create({
   },
   authButton: {
     flex: 1,
+    minWidth: 90,
+    paddingHorizontal: 8,
+  },
+  authButtonHalf: {
+    flexGrow: 1,
+    minWidth: "46%",
+  },
+  authButtonFull: {
+    flexGrow: 1,
+    width: "100%",
   },
   authRow: {
     flexDirection: "row",

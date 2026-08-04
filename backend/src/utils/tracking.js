@@ -11,9 +11,21 @@ export const LEGACY_STATUS_ALIASES = {
   pending: "Pending",
   accepted: "Provider Assigned",
   assigned: "Provider Assigned",
+  provider_assigned: "Provider Assigned",
   confirmed: "Confirmed",
+  on_the_way: "On The Way",
+  en_route: "On The Way",
+  "on-the-way": "On The Way",
+  "on the way": "On The Way",
+  arrived: "Arrived",
+  job_started: "Service Started",
+  service_started: "Service Started",
+  "service-started": "Service Started",
+  "service started": "Service Started",
+  in_progress: "Service Started",
   completed: "Completed",
   cancelled: "Cancelled",
+  rejected: "Cancelled",
 };
 
 export const trackingStatusDetails = {
@@ -57,8 +69,9 @@ export function normalizeTrackingStatus(status = "") {
   const rawStatus = String(status || "").trim();
   if (!rawStatus) return "Confirmed";
 
-  const lowerStatus = rawStatus.toLowerCase();
+  const lowerStatus = rawStatus.toLowerCase().replace(/[\s_\-]+/g, "_");
   if (LEGACY_STATUS_ALIASES[lowerStatus]) return LEGACY_STATUS_ALIASES[lowerStatus];
+  if (LEGACY_STATUS_ALIASES[rawStatus.toLowerCase()]) return LEGACY_STATUS_ALIASES[rawStatus.toLowerCase()];
 
   return allowedTrackingStatuses.find((item) => item.toLowerCase() === lowerStatus) || rawStatus;
 }

@@ -52,7 +52,9 @@ function ProviderScreen({
   const bookings = providerData?.bookings || [];
   const acceptedBookings = useMemo(() => {
     return bookings.filter((booking) => {
-      const status = String(booking.status || "").toLowerCase().replace(/_/g, " ");
+      const status = String(booking.status || "")
+        .toLowerCase()
+        .replace(/_/g, " ");
       return [
         "accepted",
         "confirmed",
@@ -80,28 +82,44 @@ function ProviderScreen({
   }, [availableRequests]);
 
   const completedHistory = useMemo(() => {
-    return bookings.filter((booking) => String(booking.status || "").toLowerCase() === "completed");
+    return bookings.filter(
+      (booking) => String(booking.status || "").toLowerCase() === "completed",
+    );
   }, [bookings]);
 
   const providerRejectedHistory = useMemo(() => {
     return bookings.filter((booking) => {
       const status = String(booking.status || "").toLowerCase();
-      return status === "rejected" || (status === "cancelled" && booking.cancelledBy === "provider");
+      return (
+        status === "rejected" ||
+        (status === "cancelled" && booking.cancelledBy === "provider")
+      );
     });
   }, [bookings]);
 
   const clientCancelledHistory = useMemo(() => {
     return bookings.filter((booking) => {
-      return String(booking.status || "").toLowerCase() === "cancelled" && booking.cancelledBy === "client";
+      return (
+        String(booking.status || "").toLowerCase() === "cancelled" &&
+        booking.cancelledBy === "client"
+      );
     });
   }, [bookings]);
 
-  const stats = useMemo(() => ({
-    pending: pendingHistory.length,
-    completed: completedHistory.length,
-    providerRejected: providerRejectedHistory.length,
-    clientCancelled: clientCancelledHistory.length,
-  }), [pendingHistory, completedHistory, providerRejectedHistory, clientCancelledHistory]);
+  const stats = useMemo(
+    () => ({
+      pending: pendingHistory.length,
+      completed: completedHistory.length,
+      providerRejected: providerRejectedHistory.length,
+      clientCancelled: clientCancelledHistory.length,
+    }),
+    [
+      pendingHistory,
+      completedHistory,
+      providerRejectedHistory,
+      clientCancelledHistory,
+    ],
+  );
 
   const selectedHistoryBookings = useMemo(() => {
     switch (historyTab) {
@@ -116,24 +134,36 @@ function ProviderScreen({
       default:
         return completedHistory;
     }
-  }, [historyTab, pendingHistory, providerRejectedHistory, clientCancelledHistory, completedHistory]);
+  }, [
+    historyTab,
+    pendingHistory,
+    providerRejectedHistory,
+    clientCancelledHistory,
+    completedHistory,
+  ]);
 
   // historyCount excludes pending
   const historyCount =
-    stats.completed +
-    stats.providerRejected +
-    stats.clientCancelled;
+    stats.completed + stats.providerRejected + stats.clientCancelled;
 
   const providerUnavailable = provider && !provider.isBookable;
 
   const dashboardLocked = Boolean(
-    providerData?.dashboardLocked || (provider && provider.approvalStatus && provider.approvalStatus !== "approved")
+    providerData?.dashboardLocked ||
+    (provider &&
+      provider.approvalStatus &&
+      provider.approvalStatus !== "approved"),
   );
-  const approvalStatus = provider?.approvalStatus || (dashboardLocked ? "pending" : "approved");
-  const approvalTitle = approvalStatus === "rejected" ? "Approval not granted" : "Waiting for admin approval";
-  const approvalCopy = approvalStatus === "rejected"
-    ? "Your provider request was rejected by the website admin. Update your details or contact ServiceHub support before taking jobs."
-    : "Your provider registration is under review. The website admin dashboard manages all provider approvals for website and mobile requests.";
+  const approvalStatus =
+    provider?.approvalStatus || (dashboardLocked ? "pending" : "approved");
+  const approvalTitle =
+    approvalStatus === "rejected"
+      ? "Approval not granted"
+      : "Waiting for admin approval";
+  const approvalCopy =
+    approvalStatus === "rejected"
+      ? "Your provider request was rejected by the website admin. Update your details or contact ServiceHub support before taking jobs."
+      : "Your provider registration is under review. The website admin dashboard manages all provider approvals for website and mobile requests.";
 
   const sections = useMemo(() => {
     if (dashboardLocked) return [];
@@ -142,16 +172,28 @@ function ProviderScreen({
 
     // New Requests (pending) always visible
     if (pendingHistory.length) {
-      list.push({ title: "New Requests", type: "available", data: pendingHistory });
+      list.push({
+        title: "New Requests",
+        type: "available",
+        data: pendingHistory,
+      });
     }
 
     // ✅ Accepted Bookings – show ONLY when history panel is closed
     if (!historyOpen && acceptedBookings.length) {
-      list.push({ title: "Accepted Bookings", type: "assigned", data: acceptedBookings });
+      list.push({
+        title: "Accepted Bookings",
+        type: "assigned",
+        data: acceptedBookings,
+      });
     }
 
     // History section (shown only when expanded and a category is selected)
-    if (historyOpen && selectedHistoryBookings.length && historyTab !== "pending") {
+    if (
+      historyOpen &&
+      selectedHistoryBookings.length &&
+      historyTab !== "pending"
+    ) {
       const historyTitles = {
         providerRejected: "Provider Rejected",
         clientCancelled: "Client Cancelled",
@@ -165,7 +207,14 @@ function ProviderScreen({
     }
 
     return list;
-  }, [pendingHistory, acceptedBookings, selectedHistoryBookings, historyTab, dashboardLocked, historyOpen]);
+  }, [
+    pendingHistory,
+    acceptedBookings,
+    selectedHistoryBookings,
+    historyTab,
+    dashboardLocked,
+    historyOpen,
+  ]);
 
   const keyExtractor = useCallback((item) => String(item._id || item.id), []);
   const renderItem = useCallback(
@@ -183,30 +232,61 @@ function ProviderScreen({
         onRequestLocation={onRequestLocation}
       />
     ),
-    [submitting, onAccept, onReject, onCancel, onComplete, onEstimate, onUpdateTrackingStatus, onRequestLocation]
+    [
+      submitting,
+      onAccept,
+      onReject,
+      onCancel,
+      onComplete,
+      onEstimate,
+      onUpdateTrackingStatus,
+      onRequestLocation,
+    ],
   );
 
   const renderSectionHeader = useCallback(
     ({ section }) => (
       <View style={styles.sectionHeader}>
-        <Text style={[styles.sectionTitle, { color: theme.text }]}>{section.title}</Text>
-        <Text style={[styles.sectionCount, { color: theme.teal }]}>{section.data.length}</Text>
+        <Text style={[styles.sectionTitle, { color: theme.text }]}>
+          {section.title}
+        </Text>
+        <Text style={[styles.sectionCount, { color: theme.teal }]}>
+          {section.data.length}
+        </Text>
       </View>
     ),
-    [theme]
+    [theme],
   );
 
   if (!user || user.role !== "provider") {
     return (
       <View style={[styles.center, { paddingHorizontal: metrics.pagePadding }]}>
         <View style={[styles.lockIcon, { backgroundColor: theme.tealSoft }]}>
-          <MaterialCommunityIcons name="briefcase-check-outline" size={31} color={theme.teal} />
+          <MaterialCommunityIcons
+            name="briefcase-check-outline"
+            size={31}
+            color={theme.teal}
+          />
         </View>
-        <Text style={[styles.title, { color: theme.text }]}>Provider workspace</Text>
-        <Text style={[styles.copy, { color: theme.textMuted }]}>Login or create a provider account to accept jobs and update service status.</Text>
+        <Text style={[styles.title, { color: theme.text }]}>
+          Provider workspace
+        </Text>
+        <Text style={[styles.copy, { color: theme.textMuted }]}>
+          Login or create a provider account to accept jobs and update service
+          status.
+        </Text>
         <View style={styles.authActions}>
-          <ActionButton title="Provider login" icon="login" onPress={() => onOpenAuth("login", "provider")} />
-          <ActionButton title="Register" icon="account-plus-outline" variant="secondary" onPress={() => onOpenAuth("register", "provider")} />
+          <ActionButton
+            title="Provider login"
+            icon="login"
+            onPress={() => onOpenAuth("login", "provider")}
+          />
+          <ActionButton
+            title="Register"
+            icon="account-plus-outline"
+            variant="secondary"
+            onPress={() => onOpenAuth("register", "provider")}
+          />
         </View>
       </View>
     );
@@ -224,39 +304,107 @@ function ProviderScreen({
     return (
       <View style={[styles.center, { paddingHorizontal: metrics.pagePadding }]}>
         <View style={[styles.lockIcon, { backgroundColor: theme.tealSoft }]}>
-          <MaterialCommunityIcons name="shield-clock-outline" size={32} color={theme.teal} />
+          <MaterialCommunityIcons
+            name="shield-clock-outline"
+            size={32}
+            color={theme.teal}
+          />
         </View>
-        <Text style={[styles.statusLabel, { color: approvalStatus === "rejected" ? theme.rose : theme.teal }]}>
+        <Text
+          style={[
+            styles.statusLabel,
+            { color: approvalStatus === "rejected" ? theme.rose : theme.teal },
+          ]}
+        >
           {approvalStatus}
         </Text>
-        <Text style={[styles.title, { color: theme.text }]}>{approvalTitle}</Text>
-        <Text style={[styles.copy, { color: theme.textMuted }]}>{providerData?.message || approvalCopy}</Text>
+        <Text style={[styles.title, { color: theme.text }]}>
+          {approvalTitle}
+        </Text>
+        <Text style={[styles.copy, { color: theme.textMuted }]}>
+          {providerData?.message || approvalCopy}
+        </Text>
         {approvalStatus === "rejected" && provider?.rejectionReason ? (
-          <Text style={[styles.softError, { backgroundColor: theme.roseSoft, color: theme.rose }]}>Reason: {provider.rejectionReason}</Text>
+          <Text
+            style={[
+              styles.softError,
+              { backgroundColor: theme.roseSoft, color: theme.rose },
+            ]}
+          >
+            Reason: {provider.rejectionReason}
+          </Text>
         ) : null}
         {provider ? (
-          <View style={[styles.profileCard, { backgroundColor: theme.surface, borderColor: theme.border, width: "100%" }]}>
+          <View
+            style={[
+              styles.profileCard,
+              {
+                backgroundColor: theme.surface,
+                borderColor: theme.border,
+                width: "100%",
+              },
+            ]}
+          >
             <View style={styles.profileTop}>
-              <View style={[styles.providerIcon, { backgroundColor: theme.tealSoft }]}>
+              <View
+                style={[
+                  styles.providerIcon,
+                  { backgroundColor: theme.tealSoft },
+                ]}
+              >
                 {provider.image ? (
-                  <Image source={{ uri: provider.image }} style={styles.providerImage} resizeMode="cover" />
+                  <Image
+                    source={{ uri: provider.image }}
+                    style={styles.providerImage}
+                    resizeMode="cover"
+                  />
                 ) : (
-                  <MaterialCommunityIcons name="account-hard-hat-outline" size={28} color={theme.teal} />
+                  <MaterialCommunityIcons
+                    name="account-hard-hat-outline"
+                    size={28}
+                    color={theme.teal}
+                  />
                 )}
               </View>
               <View style={styles.providerText}>
-                <Text style={[styles.providerName, { color: theme.text }]} numberOfLines={1}>{provider.name}</Text>
-                <Text style={[styles.providerMeta, { color: theme.textMuted }]} numberOfLines={2}>
+                <Text
+                  style={[styles.providerName, { color: theme.text }]}
+                  numberOfLines={1}
+                >
+                  {provider.name}
+                </Text>
+                <Text
+                  style={[styles.providerMeta, { color: theme.textMuted }]}
+                  numberOfLines={2}
+                >
                   {provider.category} | {provider.location} | {provider.phone}
                 </Text>
               </View>
             </View>
           </View>
         ) : null}
-        {error ? <Text style={[styles.softError, { backgroundColor: theme.roseSoft, color: theme.rose }]}>{error}</Text> : null}
-        <ActionButton title="Check approval status" icon="refresh" onPress={onRefresh} />
+        {error ? (
+          <Text
+            style={[
+              styles.softError,
+              { backgroundColor: theme.roseSoft, color: theme.rose },
+            ]}
+          >
+            {error}
+          </Text>
+        ) : null}
+        <ActionButton
+          title="Check approval status"
+          icon="refresh"
+          onPress={onRefresh}
+        />
         {approvalStatus === "rejected" ? (
-          <ActionButton title="Edit and resubmit" icon="account-edit-outline" variant="secondary" onPress={onEditProfile} />
+          <ActionButton
+            title="Edit and resubmit"
+            icon="account-edit-outline"
+            variant="secondary"
+            onPress={onEditProfile}
+          />
         ) : null}
       </View>
     );
@@ -270,64 +418,157 @@ function ProviderScreen({
       renderSectionHeader={renderSectionHeader}
       ListHeaderComponent={
         <View style={styles.header}>
-          <Text style={[styles.title, { color: theme.text }]}>Provider workspace</Text>
+          <Text style={[styles.title, { color: theme.text }]}>
+            Provider workspace
+          </Text>
           {provider ? (
-            <View style={[styles.profileCard, { backgroundColor: theme.surface, borderColor: theme.border }]}>
+            <View
+              style={[
+                styles.profileCard,
+                { backgroundColor: theme.surface, borderColor: theme.border },
+              ]}
+            >
               <View style={styles.profileTop}>
-                <View style={[styles.providerIcon, { backgroundColor: theme.tealSoft }]}>
+                <View
+                  style={[
+                    styles.providerIcon,
+                    { backgroundColor: theme.tealSoft },
+                  ]}
+                >
                   {provider.image ? (
-                    <Image source={{ uri: provider.image }} style={styles.providerImage} resizeMode="cover" />
+                    <Image
+                      source={{ uri: provider.image }}
+                      style={styles.providerImage}
+                      resizeMode="cover"
+                    />
                   ) : (
-                    <MaterialCommunityIcons name="account-hard-hat-outline" size={28} color={theme.teal} />
+                    <MaterialCommunityIcons
+                      name="account-hard-hat-outline"
+                      size={28}
+                      color={theme.teal}
+                    />
                   )}
                 </View>
                 <View style={styles.providerText}>
-                  <Text style={[styles.providerName, { color: theme.text }]} numberOfLines={1}>{provider.name}</Text>
-                  <Text style={[styles.providerMeta, { color: theme.textMuted }]} numberOfLines={2}>
-                    {provider.category} | {provider.location} | {provider.responseTime}
+                  <Text
+                    style={[styles.providerName, { color: theme.text }]}
+                    numberOfLines={1}
+                  >
+                    {provider.name}
+                  </Text>
+                  <Text
+                    style={[styles.providerMeta, { color: theme.textMuted }]}
+                    numberOfLines={2}
+                  >
+                    {provider.category} | {provider.location} |{" "}
+                    {provider.responseTime}
                   </Text>
                 </View>
               </View>
               <View style={styles.statusPanel}>
                 <View style={styles.statusHeader}>
-                  <Text style={[styles.statusPanelTitle, { color: theme.text }]}>Availability</Text>
-                  <Text style={[styles.statusLabel, { color: providerUnavailable ? theme.rose : theme.teal }]}>
+                  <Text
+                    style={[styles.statusPanelTitle, { color: theme.text }]}
+                  >
+                    Availability
+                  </Text>
+                  <Text
+                    style={[
+                      styles.statusLabel,
+                      { color: providerUnavailable ? theme.rose : theme.teal },
+                    ]}
+                  >
                     {provider.availabilityStatus || "available"}
                   </Text>
                 </View>
-                {providerUnavailable ? <Text style={[styles.softError, { backgroundColor: theme.roseSoft, color: theme.rose }]}>Provider is currently unavailable.</Text> : null}
+                {providerUnavailable ? (
+                  <Text
+                    style={[
+                      styles.softError,
+                      { backgroundColor: theme.roseSoft, color: theme.rose },
+                    ]}
+                  >
+                    Provider is currently unavailable.
+                  </Text>
+                ) : null}
                 <View style={styles.statusActions}>
-                  {["available", "active", "absent", "inactive"].map((status) => (
-                    <ActionButton
-                      key={status}
-                      title={status}
-                      icon={status === "absent" || status === "inactive" ? "pause-circle-outline" : "check-circle-outline"}
-                      variant={provider.availabilityStatus === status ? "primary" : "secondary"}
-                      onPress={() => onUpdateAvailability?.(status)}
-                      style={styles.statusAction}
-                    />
-                  ))}
+                  {["available", "active", "absent", "inactive"].map(
+                    (status) => (
+                      <ActionButton
+                        key={status}
+                        title={status}
+                        icon={
+                          status === "absent" || status === "inactive"
+                            ? "pause-circle-outline"
+                            : "check-circle-outline"
+                        }
+                        variant={
+                          provider.availabilityStatus === status
+                            ? "primary"
+                            : "secondary"
+                        }
+                        onPress={() => onUpdateAvailability?.(status)}
+                        style={styles.statusAction}
+                      />
+                    ),
+                  )}
                 </View>
               </View>
               <View style={[styles.statusPanel, { borderColor: theme.border }]}>
                 <View style={styles.statusHeader}>
-                  <Text style={[styles.statusPanelTitle, { color: theme.text }]}>Duty tracking</Text>
-                  <Text style={[styles.statusLabel, { color: provider.trackingActive ? theme.teal : theme.textMuted }]}>
+                  <Text
+                    style={[styles.statusPanelTitle, { color: theme.text }]}
+                  >
+                    Duty tracking
+                  </Text>
+                  <Text
+                    style={[
+                      styles.statusLabel,
+                      {
+                        color: provider.trackingActive
+                          ? theme.teal
+                          : theme.textMuted,
+                      },
+                    ]}
+                  >
                     {provider.trackingActive ? "tracking" : "off"}
                   </Text>
                 </View>
                 <Text style={[styles.providerMeta, { color: theme.textMuted }]}>
-                  {provider.currentLocation?.address || "Start tracking to share your latest location with admin."}
+                  {provider.currentLocation?.address ||
+                    "Start tracking to share your latest location with admin."}
                 </Text>
                 <View style={styles.statusActions}>
-                  <ActionButton title="Start Duty" icon="map-marker-radius-outline" onPress={onStartTracking} style={styles.statusAction} />
-                  <ActionButton title="Stop Tracking" icon="stop-circle-outline" variant="secondary" onPress={onStopTracking} style={styles.statusAction} />
+                  <ActionButton
+                    title="Start Duty"
+                    icon="map-marker-radius-outline"
+                    variant={provider?.trackingActive ? "secondary" : "primary"}
+                    onPress={onStartTracking}
+                    style={styles.statusAction}
+                  />
+
+                  <ActionButton
+                    title="Stop Tracking"
+                    icon="stop-circle-outline"
+                    variant={provider?.trackingActive ? "primary" : "secondary"}
+                    onPress={onStopTracking}
+                    style={styles.statusAction}
+                  />
                 </View>
               </View>
               <View style={styles.profileStats}>
-                <ProfileStat label="Rating" value={String(provider.rating || 0)} />
-                <ProfileStat label="Reviews" value={String(provider.reviews || 0)} />
-                <ProfileStat label="Price" value={provider.price || "Set price"} />
+                <ProfileStat
+                  label="Rating"
+                  value={String(provider.rating || 0)}
+                />
+                <ProfileStat
+                  label="Reviews"
+                  value={String(provider.reviews || 0)}
+                />
+                <ProfileStat
+                  label="Price"
+                  value={provider.price || "Set price"}
+                />
               </View>
             </View>
           ) : null}
@@ -341,7 +582,9 @@ function ProviderScreen({
             ]}
           >
             <View style={styles.historyText}>
-              <Text style={[styles.historyTitle, { color: theme.text }]}>Booking History</Text>
+              <Text style={[styles.historyTitle, { color: theme.text }]}>
+                Booking History
+              </Text>
               <Text style={[styles.historyCopy, { color: theme.textMuted }]}>
                 {historyCount
                   ? `${stats.completed ?? 0} completed, ${(stats.providerRejected ?? 0) + (stats.clientCancelled ?? 0)} cancelled/rejected`
@@ -366,7 +609,11 @@ function ProviderScreen({
               >
                 History Categories
               </Text>
-              <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: 8, paddingRight: 10 }}>
+              <ScrollView
+                horizontal
+                showsHorizontalScrollIndicator={false}
+                contentContainerStyle={{ gap: 8, paddingRight: 10 }}
+              >
                 <Pressable
                   onPress={() => setHistoryTab("completed")}
                   style={{
@@ -391,7 +638,9 @@ function ProviderScreen({
                   onPress={() => setHistoryTab("providerRejected")}
                   style={{
                     backgroundColor:
-                      historyTab === "providerRejected" ? theme.teal : theme.surface,
+                      historyTab === "providerRejected"
+                        ? theme.teal
+                        : theme.surface,
                     paddingHorizontal: 14,
                     paddingVertical: 8,
                     borderRadius: 20,
@@ -399,7 +648,8 @@ function ProviderScreen({
                 >
                   <Text
                     style={{
-                      color: historyTab === "providerRejected" ? "#fff" : theme.text,
+                      color:
+                        historyTab === "providerRejected" ? "#fff" : theme.text,
                       fontWeight: "600",
                     }}
                   >
@@ -411,7 +661,9 @@ function ProviderScreen({
                   onPress={() => setHistoryTab("clientCancelled")}
                   style={{
                     backgroundColor:
-                      historyTab === "clientCancelled" ? theme.teal : theme.surface,
+                      historyTab === "clientCancelled"
+                        ? theme.teal
+                        : theme.surface,
                     paddingHorizontal: 14,
                     paddingVertical: 8,
                     borderRadius: 20,
@@ -419,7 +671,8 @@ function ProviderScreen({
                 >
                   <Text
                     style={{
-                      color: historyTab === "clientCancelled" ? "#fff" : theme.text,
+                      color:
+                        historyTab === "clientCancelled" ? "#fff" : theme.text,
                       fontWeight: "600",
                     }}
                   >
@@ -431,29 +684,60 @@ function ProviderScreen({
           )}
 
           {historyOpen && selectedHistoryBookings.length > 0 && (
-            <Text style={[styles.historyEmpty, { backgroundColor: theme.tealSoft, color: theme.teal }]}>
-              {selectedHistoryBookings.length} result{selectedHistoryBookings.length === 1 ? "" : "s"} — scroll down to view.
+            <Text
+              style={[
+                styles.historyEmpty,
+                { backgroundColor: theme.tealSoft, color: theme.teal },
+              ]}
+            >
+              {selectedHistoryBookings.length} result
+              {selectedHistoryBookings.length === 1 ? "" : "s"} — scroll down to
+              view.
             </Text>
           )}
 
-          {historyOpen && selectedHistoryBookings.length === 0 && historyCount > 0 && (
-            <Text style={[styles.historyEmpty, { backgroundColor: theme.surfaceMuted, color: theme.textMuted }]}>
-              {historyTab === "pending"
-                ? "No pending requests."
-                : historyTab === "completed"
-                ? "No completed bookings."
-                : historyTab === "providerRejected"
-                ? "No provider rejected bookings."
-                : "No client cancelled bookings."}
-            </Text>
-          )}
+          {historyOpen &&
+            selectedHistoryBookings.length === 0 &&
+            historyCount > 0 && (
+              <Text
+                style={[
+                  styles.historyEmpty,
+                  {
+                    backgroundColor: theme.surfaceMuted,
+                    color: theme.textMuted,
+                  },
+                ]}
+              >
+                {historyTab === "pending"
+                  ? "No pending requests."
+                  : historyTab === "completed"
+                    ? "No completed bookings."
+                    : historyTab === "providerRejected"
+                      ? "No provider rejected bookings."
+                      : "No client cancelled bookings."}
+              </Text>
+            )}
 
           {historyOpen && !historyCount ? (
-            <Text style={[styles.historyEmpty, { backgroundColor: theme.surfaceMuted, color: theme.textMuted }]}>
+            <Text
+              style={[
+                styles.historyEmpty,
+                { backgroundColor: theme.surfaceMuted, color: theme.textMuted },
+              ]}
+            >
               No canceled or completed bookings yet.
             </Text>
           ) : null}
-          {error ? <Text style={[styles.softError, { backgroundColor: theme.roseSoft, color: theme.rose }]}>{error}</Text> : null}
+          {error ? (
+            <Text
+              style={[
+                styles.softError,
+                { backgroundColor: theme.roseSoft, color: theme.rose },
+              ]}
+            >
+              {error}
+            </Text>
+          ) : null}
         </View>
       }
       ListEmptyComponent={
@@ -471,7 +755,12 @@ function ProviderScreen({
         },
       ]}
       refreshControl={
-        <RefreshControl refreshing={refreshing} onRefresh={onRefresh} colors={[theme.teal]} tintColor={theme.teal} />
+        <RefreshControl
+          refreshing={refreshing}
+          onRefresh={onRefresh}
+          colors={[theme.teal]}
+          tintColor={theme.teal}
+        />
       }
       initialNumToRender={5}
       maxToRenderPerBatch={5}
@@ -488,8 +777,12 @@ function ProfileStat({ value, label }) {
   const theme = useThemeColors();
   return (
     <View style={[styles.profileStat, { backgroundColor: theme.surfaceMuted }]}>
-      <Text style={[styles.statValue, { color: theme.text }]} numberOfLines={1}>{value}</Text>
-      <Text style={[styles.statLabel, { color: theme.textMuted }]}>{label}</Text>
+      <Text style={[styles.statValue, { color: theme.text }]} numberOfLines={1}>
+        {value}
+      </Text>
+      <Text style={[styles.statLabel, { color: theme.textMuted }]}>
+        {label}
+      </Text>
     </View>
   );
 }

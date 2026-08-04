@@ -2,6 +2,7 @@ import { MaterialCommunityIcons } from "@expo/vector-icons";
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import {
   ActivityIndicator,
+  Linking,
   Modal,
   Platform,
   Pressable,
@@ -588,6 +589,19 @@ function PaymentCheckoutSheetNative({
             javaScriptEnabled
             domStorageEnabled
             mixedContentMode="always"
+            onShouldStartLoadWithRequest={(request) => {
+              const url = request.url || "";
+              if (
+                url.startsWith("http://") ||
+                url.startsWith("https://") ||
+                url.startsWith("about:blank") ||
+                url.startsWith("data:")
+              ) {
+                return true;
+              }
+              Linking.openURL(url).catch(() => {});
+              return false;
+            }}
             onLoadEnd={() => {
               if (loadTimeoutRef.current) clearTimeout(loadTimeoutRef.current);
               setLoading(false);

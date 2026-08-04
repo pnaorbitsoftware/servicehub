@@ -426,7 +426,7 @@ function ServiceHubApp() {
         setBookingsRefreshing(false);
       }
     },
-    [loadCatalog, token, user]
+    [loadCatalog, token, user?._id, user?.role]
   );
 
   const loadProviderDashboard = useCallback(
@@ -463,7 +463,7 @@ function ServiceHubApp() {
         setProviderRefreshing(false);
       }
     },
-    [token, user]
+    [token, user?._id, user?.role]
   );
 
   const unreadNotificationsCount = useMemo(
@@ -706,7 +706,7 @@ function ServiceHubApp() {
         setNotificationsRefreshing(false);
       }
     },
-    [token, user]
+    [token, user?._id, user?.role]
   );
 
   const openNotificationsScreen = useCallback(() => {

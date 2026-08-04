@@ -57,12 +57,13 @@ function formatTimelineDate(value) {
 }
 
 function normalizeStatus(status = "") {
-  const lower = String(status || "").toLowerCase();
+  const raw = String(status || "").trim();
+  const lower = raw.toLowerCase().replace(/[\s_\-]+/g, " ");
   if (lower === "confirmed") return "Confirmed";
-  if (["assigned", "accepted", "provider assigned"].includes(lower)) return "Provider Assigned";
-  if (lower === "on the way") return "On The Way";
+  if (["assigned", "accepted", "provider assigned", "provider_assigned"].includes(lower)) return "Provider Assigned";
+  if (["on the way", "en route", "on_the_way", "en_route"].includes(lower)) return "On The Way";
   if (lower === "arrived") return "Arrived";
-  if (lower === "service started") return "Service Started";
+  if (["service started", "job started", "service_started", "job_started", "in progress", "in_progress"].includes(lower)) return "Service Started";
   if (lower === "completed") return "Completed";
   return status || "Confirmed";
 }

@@ -31,6 +31,7 @@ export default function ModalSheet({
   const theme = useThemeColors();
   const { height } = useWindowDimensions();
   const [keyboardHeight, setKeyboardHeight] = useState(0);
+  const [footerHeight, setFooterHeight] = useState(0);
   const screenHeight = Dimensions.get("screen").height;
 
   useEffect(() => {
@@ -63,6 +64,11 @@ export default function ModalSheet({
     const availableHeight = height - keyboardOffset - Math.max(insets.top, 8) - 8;
     return Math.max(280, Math.min(Math.round(height * 0.92), availableHeight));
   }, [height, insets.top, keyboardOffset]);
+
+  const scrollBottomPadding = useMemo(() => {
+    const basePadding = keyboardOffset ? 28 : 16;
+    return basePadding + (footer ? Math.max(footerHeight, 16) : 0);
+  }, [keyboardOffset, footer, footerHeight]);
 
   return (
     <Modal visible={visible} transparent animationType="slide" statusBarTranslucent onRequestClose={onClose}>
@@ -106,11 +112,18 @@ export default function ModalSheet({
               keyboardShouldPersistTaps="handled"
               onScrollBeginDrag={Keyboard.dismiss}
               showsVerticalScrollIndicator={false}
-              contentContainerStyle={[styles.content, keyboardOffset ? styles.keyboardContent : null]}
+              contentContainerStyle={[styles.content, { paddingBottom: scrollBottomPadding }]}
             >
               {children}
             </ScrollView>
-            {footer ? <View style={[styles.footer, { borderTopColor: theme.border }]}>{footer}</View> : null}
+            {footer ? (
+              <View
+                onLayout={(e) => setFooterHeight(e.nativeEvent.layout.height)}
+                style={[styles.footer, { borderTopColor: theme.border }]}
+              >
+                {footer}
+              </View>
+            ) : null}
           </Pressable>
       </KeyboardAvoidingView>
     </Modal>

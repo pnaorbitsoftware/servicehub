@@ -174,6 +174,9 @@ export default function BookingSheet({ visible, service, user, initialForm = nul
     setForm((current) => ({
       ...current,
       address: location.address || current.address,
+      city: location.city || current.city,
+      state: location.state || current.state,
+      postalCode: location.postalCode || current.postalCode,
       addressLocation: location,
       locationType: "Current Location",
     }));
@@ -185,14 +188,17 @@ export default function BookingSheet({ visible, service, user, initialForm = nul
       showConfirm("Location Required", "Please click 'Use Current Location' to detect your location coordinates before booking.");
       return;
     }
-    const finalFormattedAddress = [
-      form.houseNo,
-      form.street,
-      form.area || form.landmark,
-      form.city,
-      form.state,
-      form.postalCode
-    ].filter(Boolean).join(", ") || form.address;
+    const isGpsLocation = form.locationType === "Current Location" && Boolean(form.address);
+    const finalFormattedAddress = isGpsLocation
+      ? form.address
+      : [
+          form.houseNo,
+          form.street,
+          form.area || form.landmark,
+          form.city,
+          form.state,
+          form.postalCode
+        ].filter(Boolean).join(", ") || form.address;
 
     onSubmit({
       ...form,
@@ -251,19 +257,19 @@ export default function BookingSheet({ visible, service, user, initialForm = nul
         <TextField label={t("booking.address", "Service address")} value={form.address} onChangeText={update("address")} placeholder={t("booking.addressPlaceholder", "House, street, city")} multiline />
         <TextField label="Flat / House / Floor No." value={form.houseNo} onChangeText={update("houseNo")} placeholder="e.g. Flat 302, Floor 3" />
         <TextField label="Street / Road / Lane" value={form.street} onChangeText={update("street")} placeholder="e.g. Mahatma Gandhi Road" />
-        <View style={styles.row}>
-          <View style={styles.rowItem}>
+        <View style={[styles.row, width < 380 && styles.stackedRow]}>
+          <View style={styles.rowField}>
             <TextField label="Area / Landmark" value={form.area} onChangeText={update("area")} placeholder="e.g. Near HDFC Bank" />
           </View>
-          <View style={styles.rowItem}>
+          <View style={styles.rowField}>
             <TextField label="City" value={form.city} onChangeText={update("city")} placeholder="e.g. Pune" />
           </View>
         </View>
-        <View style={styles.row}>
-          <View style={styles.rowItem}>
+        <View style={[styles.row, width < 380 && styles.stackedRow]}>
+          <View style={styles.rowField}>
             <TextField label="State" value={form.state} onChangeText={update("state")} placeholder="e.g. Maharashtra" />
           </View>
-          <View style={styles.rowItem}>
+          <View style={styles.rowField}>
             <TextField label="Pin Code" value={form.postalCode} onChangeText={update("postalCode")} placeholder="e.g. 411001" keyboardType="number-pad" />
           </View>
         </View>

@@ -13,10 +13,10 @@ const statusRanks = {
 export const activeTrackingStatuses = ["accepted", "en_route", "arrived", "job_started", "completed"];
 
 export const normalizeBookingStatus = (status) => {
-  let s = String(status || "").toLowerCase().trim().replace(/[\s_]+/g, "_");
+  let s = String(status || "").toLowerCase().trim().replace(/[\s_\-]+/g, "_");
   if (s === "confirmed" || s === "assigned" || s === "provider_assigned") return "accepted";
   if (s === "on_the_way" || s === "en_route") return "en_route";
-  if (s === "service_started" || s === "job_started") return "job_started";
+  if (s === "service_started" || s === "job_started" || s === "in_progress") return "job_started";
   return s;
 };
 
@@ -50,6 +50,11 @@ export const buildStatusUpdateOperation = ({ booking, status, set = {} }) => {
   const normalizedStatus = normalizeBookingStatus(status);
   assertStatusTransition(booking?.status, normalizedStatus);
 
+  const trackingEventItem = {
+    status: normalizedStatus,
+    updatedAt: new Date(),
+  };
+
   const updateOperation = {
     $set: {
       ...set,
@@ -59,12 +64,11 @@ export const buildStatusUpdateOperation = ({ booking, status, set = {} }) => {
 
   if (activeTrackingStatuses.includes(normalizedStatus)) {
     updateOperation.$push = {
-      trackingEvents: {
-        status: normalizedStatus,
-        updatedAt: new Date(),
-      },
+      trackingEvents: trackingEventItem,
+      trackingHistory: trackingEventItem,
     };
   }
 
   return updateOperation;
 };
+

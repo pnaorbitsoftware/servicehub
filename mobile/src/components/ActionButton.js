@@ -77,7 +77,7 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     minHeight: 52,
     minWidth: 48,
-    paddingHorizontal: 16,
+    paddingHorizontal: 12,
     paddingVertical: 12,
   },
   disabled: {
