@@ -15,7 +15,7 @@ import {
   sendBookingConfirmationWhatsApp,
   sendProviderRequestWhatsApp,
 } from "../services/whatsappNotificationService.js";
-import { buildStatusUpdateOperation } from "../services/bookingTrackingService.js";
+import { buildStatusUpdateOperation, isWorkflowBookingStatus, normalizeBookingStatus } from "../services/bookingTrackingService.js";
 import { emitStatusChange, getProviderRoomId } from "../socket/trackingSocket.js";
 import { bookingLookup, buildPointLocation, publicLocation } from "../utils/location.js";
 import { applyPaymentSplit } from "../utils/paymentSummary.js";
@@ -493,9 +493,9 @@ router.patch("/:bookingId/status", requireAuth, async (req, res) => {
     }
 
     const { status } = req.body || {};
-    const allowedStatuses = ["accepted", "confirmed", "assigned", "on_the_way", "en_route", "arrived", "job_started", "completed", "cancelled"];
+    const normalizedStatus = normalizeBookingStatus(status);
 
-    if (!allowedStatuses.includes(status)) {
+    if (!isWorkflowBookingStatus(normalizedStatus)) {
       return res.status(400).json({ message: "Invalid booking status." });
     }
 
@@ -515,7 +515,7 @@ router.patch("/:bookingId/status", requireAuth, async (req, res) => {
 
     const updateOperation = buildStatusUpdateOperation({
       booking: existingBooking,
-      status,
+      status: normalizedStatus,
     });
 
     const booking = await Booking.findOneAndUpdate(

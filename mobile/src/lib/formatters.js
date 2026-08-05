@@ -40,6 +40,7 @@ export function normalizeTrackingStatus(status = "") {
 
   const LEGACY_STATUS_ALIASES = {
     pending: "Pending",
+    requested: "Pending",
     accepted: "Provider Assigned",
     assigned: "Provider Assigned",
     confirmed: "Confirmed",
@@ -52,12 +53,17 @@ export function normalizeTrackingStatus(status = "") {
     "job started": "Service Started",
     service_started: "Service Started",
     "service started": "Service Started",
+    in_progress: "Service Started",
+    "in progress": "Service Started",
     completed: "Completed",
+    payment_pending: "Payment Pending",
+    "payment pending": "Payment Pending",
+    paid: "Paid",
     cancelled: "Cancelled",
     rejected: "Rejected",
   };
 
-  const lowerStatus = rawStatus.toLowerCase();
+  const lowerStatus = rawStatus.toLowerCase().replace(/[\s-]+/g, "_");
   if (LEGACY_STATUS_ALIASES[lowerStatus]) return LEGACY_STATUS_ALIASES[lowerStatus];
 
   const allowedStatuses = ["Pending", "Confirmed", "Provider Assigned", "On The Way", "Arrived", "Service Started", "Completed", "Cancelled"];

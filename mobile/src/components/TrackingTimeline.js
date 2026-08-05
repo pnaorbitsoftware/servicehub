@@ -3,6 +3,7 @@ import React from "react";
 import { StyleSheet, Text, View } from "react-native";
 
 import { colors, useThemeColors } from "../theme";
+import { normalizeTrackingStatus } from "../lib/formatters";
 
 export const TRACKING_STEPS = [
   "Confirmed",
@@ -57,15 +58,8 @@ function formatTimelineDate(value) {
 }
 
 function normalizeStatus(status = "") {
-  const raw = String(status || "").trim();
-  const lower = raw.toLowerCase().replace(/[\s_\-]+/g, " ");
-  if (lower === "confirmed") return "Confirmed";
-  if (["assigned", "accepted", "provider assigned", "provider_assigned"].includes(lower)) return "Provider Assigned";
-  if (["on the way", "en route", "on_the_way", "en_route"].includes(lower)) return "On The Way";
-  if (lower === "arrived") return "Arrived";
-  if (["service started", "job started", "service_started", "job_started", "in progress", "in_progress"].includes(lower)) return "Service Started";
-  if (lower === "completed") return "Completed";
-  return status || "Confirmed";
+  const normalized = normalizeTrackingStatus(status);
+  return TRACKING_STEPS.includes(normalized) ? normalized : "Confirmed";
 }
 
 export function buildTimelineSteps(history = [], currentStatus = "Confirmed") {

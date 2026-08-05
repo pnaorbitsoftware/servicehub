@@ -1,24 +1,54 @@
 const statusRanks = {
   pending: 0,
   accepted: 1,
-  confirmed: 1,
-  assigned: 1,
   on_the_way: 2,
-  en_route: 2,
   arrived: 3,
   job_started: 4,
   completed: 5,
 };
 
-export const activeTrackingStatuses = ["accepted", "en_route", "arrived", "job_started", "completed"];
+const statusAliases = {
+  requested: "pending",
+  pending: "pending",
+  accepted: "accepted",
+  confirmed: "accepted",
+  assigned: "accepted",
+  provider_assigned: "accepted",
+  on_the_way: "on_the_way",
+  en_route: "on_the_way",
+  arrived: "arrived",
+  service_started: "job_started",
+  in_progress: "job_started",
+  job_started: "job_started",
+  completed: "completed",
+  payment_pending: "payment_pending",
+  pending_payment: "payment_pending",
+  paid: "paid",
+  cancelled: "cancelled",
+  rejected: "rejected",
+};
+
+export const activeTrackingStatuses = ["accepted", "on_the_way", "arrived", "job_started", "completed"];
+export const workflowBookingStatuses = new Set([
+  "pending",
+  "accepted",
+  "on_the_way",
+  "arrived",
+  "job_started",
+  "completed",
+  "cancelled",
+  "rejected",
+]);
 
 export const normalizeBookingStatus = (status) => {
-  let s = String(status || "").toLowerCase().trim().replace(/[\s_\-]+/g, "_");
-  if (s === "confirmed" || s === "assigned" || s === "provider_assigned") return "accepted";
-  if (s === "on_the_way" || s === "en_route") return "en_route";
-  if (s === "service_started" || s === "job_started" || s === "in_progress") return "job_started";
-  return s;
+  const normalized = String(status || "")
+    .toLowerCase()
+    .trim()
+    .replace(/[\s-]+/g, "_");
+  return statusAliases[normalized] || normalized;
 };
+
+export const isWorkflowBookingStatus = (status) => workflowBookingStatuses.has(normalizeBookingStatus(status));
 
 export const assertStatusTransition = (currentStatus = "pending", nextStatus) => {
   if (nextStatus === "cancelled" || nextStatus === "rejected") {
@@ -48,12 +78,10 @@ export const assertStatusTransition = (currentStatus = "pending", nextStatus) =>
 
 export const buildStatusUpdateOperation = ({ booking, status, set = {} }) => {
   const normalizedStatus = normalizeBookingStatus(status);
+  if (!workflowBookingStatuses.has(normalizedStatus)) {
+    throw new Error("Invalid booking status.");
+  }
   assertStatusTransition(booking?.status, normalizedStatus);
-
-  const trackingEventItem = {
-    status: normalizedStatus,
-    updatedAt: new Date(),
-  };
 
   const updateOperation = {
     $set: {
@@ -64,11 +92,12 @@ export const buildStatusUpdateOperation = ({ booking, status, set = {} }) => {
 
   if (activeTrackingStatuses.includes(normalizedStatus)) {
     updateOperation.$push = {
-      trackingEvents: trackingEventItem,
-      trackingHistory: trackingEventItem,
+      trackingEvents: {
+        status: normalizedStatus,
+        updatedAt: new Date(),
+      },
     };
   }
 
   return updateOperation;
 };
-

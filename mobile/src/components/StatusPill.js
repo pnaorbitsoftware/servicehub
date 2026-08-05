@@ -2,11 +2,13 @@ import React from "react";
 import { StyleSheet, Text } from "react-native";
 
 import { colors, radius, useThemeColors } from "../theme";
+import { normalizeTrackingStatus } from "../lib/formatters";
 
 function StatusPill({ status = "pending" }) {
   const theme = useThemeColors();
-  const normalized = String(status).toLowerCase();
-  const isDone = normalized === "completed";
+  const label = normalizeTrackingStatus(status);
+  const normalized = label.toLowerCase();
+  const isDone = normalized === "completed" || normalized === "paid";
   const isBad = ["cancelled", "rejected", "provider rejected", "provider_rejected"].includes(normalized);
 
   return (
@@ -20,7 +22,7 @@ function StatusPill({ status = "pending" }) {
         },
       ]}
     >
-      {normalized}
+      {label}
     </Text>
   );
 }

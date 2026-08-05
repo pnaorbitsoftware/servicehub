@@ -16,7 +16,7 @@ import {
   sendServiceCompletedWhatsApp,
   sendProviderRequestRejectedWhatsApp,
 } from "../services/whatsappNotificationService.js";
-import { buildStatusUpdateOperation } from "../services/bookingTrackingService.js";
+import { buildStatusUpdateOperation, isWorkflowBookingStatus, normalizeBookingStatus } from "../services/bookingTrackingService.js";
 import { emitProviderDashboardUpdate, emitStatusChange } from "../socket/trackingSocket.js";
 import { bookingLookup, buildPointLocation, publicLocation } from "../utils/location.js";
 import { invalidateCatalogCache } from "./catalogRoutes.js";
@@ -929,9 +929,9 @@ router.patch("/bookings/:bookingId/location", requireAuth, requireProvider, asyn
 router.patch("/bookings/:bookingId/status", requireAuth, requireProvider, async (req, res) => {
   try {
     const { status, workImage = "", cancellationReason = "" } = req.body;
-    const allowedStatuses = ["accepted", "confirmed", "assigned", "on_the_way", "en_route", "arrived", "job_started", "completed", "cancelled"];
+    const normalizedStatus = normalizeBookingStatus(status);
 
-    if (!allowedStatuses.includes(status)) {
+    if (!isWorkflowBookingStatus(normalizedStatus)) {
       return res.status(400).json({ message: "Invalid booking status." });
     }
 
@@ -943,12 +943,12 @@ router.patch("/bookings/:bookingId/status", requireAuth, requireProvider, async 
 
     const update = {};
 
-    if (status === "completed") {
+    if (normalizedStatus === "completed") {
       if (workImage) {
         update.workImage = workImage;
       }
       update.completedAt = new Date();
-    } else if (status === "cancelled") {
+    } else if (normalizedStatus === "cancelled") {
       if (!cancellationReason.trim()) {
         return res.status(400).json({ message: "Please describe why this booking is being cancelled." });
       }
@@ -970,8 +970,8 @@ router.patch("/bookings/:bookingId/status", requireAuth, requireProvider, async 
       return res.status(404).json({ message: "Booking not found for this provider." });
     }
 
-    if (status === "job_started") {
-      if (existingBooking.status !== "arrived") {
+    if (normalizedStatus === "job_started") {
+      if (normalizeBookingStatus(existingBooking.status) !== "arrived") {
         return res.status(400).json({ message: "Mark arrived before starting the job." });
       }
 
@@ -980,8 +980,8 @@ router.patch("/bookings/:bookingId/status", requireAuth, requireProvider, async 
       }
     }
 
-    if (status === "completed") {
-      if (existingBooking.status !== "job_started") {
+    if (normalizedStatus === "completed") {
+      if (normalizeBookingStatus(existingBooking.status) !== "job_started") {
         return res.status(400).json({ message: "Start the job before marking the work completed." });
       }
 
@@ -992,7 +992,7 @@ router.patch("/bookings/:bookingId/status", requireAuth, requireProvider, async 
 
     const updateOperation = buildStatusUpdateOperation({
       booking: existingBooking,
-      status,
+      status: normalizedStatus,
       set: update,
     });
 
@@ -1005,7 +1005,7 @@ router.patch("/bookings/:bookingId/status", requireAuth, requireProvider, async 
     setImmediate(async () => {
       try {
         const client = await User.findById(booking.user).lean();
-        if (status === "completed") {
+        if (normalizedStatus === "completed") {
           sendServiceCompletedEmail({
             to: client?.email,
             name: client?.name || booking.name,
@@ -1018,7 +1018,7 @@ router.patch("/bookings/:bookingId/status", requireAuth, requireProvider, async 
             booking,
             providerName: provider.name,
           }).catch(() => {});
-        } else if (status === "cancelled") {
+        } else if (normalizedStatus === "cancelled") {
           sendProviderCancellationEmail({
             to: client?.email,
             booking,

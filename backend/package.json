@@ -6,7 +6,8 @@
   "scripts": {
     "dev": "node --watch server.js",
     "start": "node server.js",
-    "web": "node server.js"
+    "web": "node server.js",
+    "test": "node --test test/**/*.test.mjs"
   },
   "dependencies": {
     "@socket.io/redis-adapter": "^8.3.0",
